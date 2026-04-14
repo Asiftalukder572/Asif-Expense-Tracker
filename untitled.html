@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello, World!</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+      <h1 class="title">Hello World!</h1>
+      <p id="currentTime"></p>
+      <script src="script.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আসিফের বাকির হিসাব</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #18bc9c;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ecf0f1; margin: 0; padding: 10px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        
+        .header-title { text-align: center; color: var(--primary); font-size: 28px; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; margin-bottom: 25px; text-transform: uppercase; font-weight: bold; }
+        
+        /* Dashboard Cards */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { padding: 20px; border-radius: 10px; color: white; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .card.total { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .card.due { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .card.paid { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .card h3 { margin: 0 0 10px 0; font-size: 16px; font-weight: normal; }
+        .card h2 { margin: 0; font-size: 26px; }
+
+        /* Form */
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: var(--light); padding: 20px; border-radius: 10px; border: 1px solid #dee2e6; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: var(--dark); }
+        input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; outline: none; transition: border-color 0.3s; }
+        input:focus { border-color: var(--info); box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); }
+        button { background-color: var(--primary); color: white; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #1a252f; }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; background: white; min-width: 600px; }
+        th, td { padding: 15px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+        th { background-color: var(--primary); color: white; white-space: nowrap; }
+        tr:hover { background-color: #f8fafc; }
+        
+        /* Action Buttons */
+        .btn-action { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; transition: opacity 0.2s; }
+        .btn-sm:hover { opacity: 0.8; }
+        .btn-pay { background-color: var(--secondary); }
+        .btn-edit { background-color: var(--warning); }
+        .btn-delete { background-color: var(--danger); }
+        
+        .text-red { color: var(--danger); font-weight: bold; }
+        .text-green { color: #27ae60; font-weight: bold; }
+        .section-title { margin-top: 35px; color: var(--primary); border-left: 4px solid var(--secondary); padding-left: 10px; }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            form { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+            .header-title { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-title">আসিফের বাকির হিসাব</div>
+        
+        <div class="dashboard">
+            <div class="card total">
+                <h3>সর্বমোট কেনাকাটা</h3>
+                <h2 id="grand-total">৳0</h2>
+            </div>
+            <div class="card due">
+                <h3>মোট বকেয়া (বাকি)</h3>
+                <h2 id="grand-due">৳0</h2>
+            </div>
+            <div class="card paid">
+                <h3>মোট পরিশোধিত</h3>
+                <h2 id="grand-paid">৳0</h2>
+            </div>
+        </div>
+
+        <form id="tracker-form">
+            <div class="form-group">
+                <label>তারিখ</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label>দোকানের নাম</label>
+                <input type="text" id="shop" placeholder="যেমন: রহিম স্টোর" required>
+            </div>
+            <div class="form-group full-width">
+                <label>কী কিনেছেন বা লেনদেনের বিবরণ?</label>
+                <input type="text" id="item" placeholder="যেমন: চাল, ডাল" required>
+            </div>
+            <div class="form-group">
+                <label>মোট দাম (টাকা)</label>
+                <input type="number" id="total-amount" placeholder="পণ্যটির দাম কত?" required>
+            </div>
+            <div class="form-group">
+                <label>আজকে জমা/পরিশোধ (টাকা)</label>
+                <input type="number" id="paid-amount" placeholder="কত টাকা দিলেন? (না দিলে 0 লিখুন)" required>
+            </div>
+            <div class="form-group full-width">
+                <button type="submit">নতুন হিসাব যুক্ত করুন</button>
+            </div>
+        </form>
+
+        <h3 class="section-title">দোকান অনুযায়ী সারসংক্ষেপ (একত্রিত হিসাব)</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>দোকান কোড</th>
+                        <th>দোকানের নাম</th>
+                        <th>মোট কেনাকাটা</th>
+                        <th>মোট পরিশোধ</th>
+                        <th>বর্তমান বাকি</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="shop-body"></tbody>
+            </table>
+        </div>
+
+        <h3 class="section-title">বিস্তারিত লেনদেন (সকল এন্ট্রি)</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>তারিখ</th>
+                        <th>দোকান</th>
+                        <th>বিবরণ</th>
+                        <th>মোট দাম</th>
+                        <th>পরিশোধিত</th>
+                        <th>বাকি আছে</th>
+                        <th>অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="txn-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let shops = JSON.parse(localStorage.getItem('asif_shops')) || [];
+        let transactions = JSON.parse(localStorage.getItem('asif_txns')) || [];
+
+        // Set today's date default
+        document.getElementById('date').valueAsDate = new Date();
+
+        function saveData() {
+            localStorage.setItem('asif_shops', JSON.stringify(shops));
+            localStorage.setItem('asif_txns', JSON.stringify(transactions));
+            renderApp();
+        }
+
+        function getOrCreateShop(name) {
+            let shopName = name.trim();
+            let shop = shops.find(s => s.name.toLowerCase() === shopName.toLowerCase());
+            if (!shop) {
+                shop = { id: 'SHP-' + (shops.length + 101), name: shopName };
+                shops.push(shop);
+            }
+            return shop;
+        }
+
+        function renderApp() {
+            let grandTotal = 0, grandPaid = 0, grandDue = 0;
+            let shopStats = {};
+
+            shops.forEach(s => { shopStats[s.id] = { ...s, total: 0, paid: 0, due: 0 }; });
+
+            const txnBody = document.getElementById('txn-body');
+            txnBody.innerHTML = '';
+
+            transactions.forEach(t => {
+                let due = t.totalAmount - t.paidAmount;
+                grandTotal += t.totalAmount;
+                grandPaid += t.paidAmount;
+                grandDue += due;
+
+                if (shopStats[t.shopId]) {
+                    shopStats[t.shopId].total += t.totalAmount;
+                    shopStats[t.shopId].paid += t.paidAmount;
+                    shopStats[t.shopId].due += due;
+                }
+
+                const shopInfo = shops.find(s => s.id === t.shopId);
+                const shopNameDisplay = shopInfo ? shopInfo.name : 'Unknown';
+
+                txnBody.innerHTML += `
+                    <tr>
+                        <td>${t.date}</td>
+                        <td>${shopNameDisplay}</td>
+                        <td>${t.item}</td>
+                        <td>৳${t.totalAmount}</td>
+                        <td class="text-green">৳${t.paidAmount}</td>
+                        <td class="${due > 0 ? 'text-red' : ''}">৳${due}</td>
+                        <td class="btn-action">
+                            ${due > 0 ? `<button class="btn-sm btn-pay" onclick="payPartial(${t.id})">বাকি শোধ</button>` : ''}
+                            <button class="btn-sm btn-delete" onclick="deleteTxn(${t.id})">মুছুন</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('grand-total').innerText = `৳${grandTotal}`;
+            document.getElementById('grand-paid').innerText = `৳${grandPaid}`;
+            document.getElementById('grand-due').innerText = `৳${grandDue}`;
+
+            const shopBody = document.getElementById('shop-body');
+            shopBody.innerHTML = '';
+            
+            Object.values(shopStats).forEach(s => {
+                shopBody.innerHTML += `
+                    <tr>
+                        <td><b>${s.id}</b></td>
+                        <td>${s.name}</td>
+                        <td>৳${s.total}</td>
+                        <td class="text-green">৳${s.paid}</td>
+                        <td class="${s.due > 0 ? 'text-red' : ''}">৳${s.due}</td>
+                        <td class="btn-action">
+                            <button class="btn-sm btn-edit" onclick="editShop('${s.id}')">নাম পরিবর্তন</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('tracker-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const shopObj = getOrCreateShop(document.getElementById('shop').value);
+            const txn = {
+                id: Date.now(),
+                date: document.getElementById('date').value,
+                shopId: shopObj.id,
+                item: document.getElementById('item').value,
+                totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
+                paidAmount: parseFloat(document.getElementById('paid-amount').value) || 0
+            };
+            transactions.push(txn);
+            saveData();
+            
+            document.getElementById('item').value = '';
+            document.getElementById('total-amount').value = '';
+            document.getElementById('paid-amount').value = '';
+        });
+
+        // নতুন ফিচার: আগের বাকি থেকে নির্দিষ্ট পরিমাণ শোধ করা
+        window.payPartial = function(id) {
+            let txn = transactions.find(t => t.id === id);
+            if(txn) {
+                let currentDue = txn.totalAmount - txn.paidAmount;
+                let paymentStr = prompt(`এই লেনদেনে আপনার বর্তমান বাকি ৳${currentDue}।\nআপনি এখন কত টাকা পরিশোধ করতে চান?`);
+                
+                if(paymentStr !== null && paymentStr.trim() !== "") {
+                    let payment = parseFloat(paymentStr);
+                    if(isNaN(payment) || payment <= 0) {
+                        alert("অনুগ্রহ করে সঠিক টাকার পরিমাণ লিখুন!");
+                    } else if (payment > currentDue) {
+                        alert(`আপনি বকেয়া টাকার (৳${currentDue}) চেয়ে বেশি পরিশোধ করতে পারবেন না!`);
+                    } else {
+                        txn.paidAmount += payment;
+                        saveData();
+                        alert(`সফলভাবে ৳${payment} পরিশোধ করা হয়েছে।`);
+                    }
+                }
+            }
+        };
+
+        window.deleteTxn = function(id) {
+            if(confirm('আপনি কি নিশ্চিত যে এই হিসাবটি মুছে ফেলতে চান?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                saveData();
+            }
+        };
+
+        window.editShop = function(id) {
+            const shop = shops.find(s => s.id === id);
+            if(shop) {
+                const newName = prompt('দোকানের নতুন নাম লিখুন:', shop.name);
+                if(newName && newName.trim() !== '') {
+                    shop.name = newName.trim();
+                    saveData();
+                }
+            }
+        };
+
+        renderApp();
+    </script>
+</body>
+</html>
+<link rel="stylesheet" href=""><html>
+
+</html><main>
+
+</main><main>
+
+</main>
